@@ -27,10 +27,10 @@ export default  {
       const container = document.getElementById("kakaoMap");
       const options = {
         center: new kakao.maps.LatLng(36.36662192460574, 127.34445497915917),
-        level: 3
+        level: 3// 지도의 레벨 (확대, 축소 정도)
       };
       this.map = new kakao.maps.Map(container, options);
-    },
+    }, //지도 생성 및 객체 리턴 
     findRoot() {
       
   }
