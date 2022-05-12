@@ -129,6 +129,7 @@ export default  {
       //마커 표시, locPosition:좌표, message:메세지
       function displayMarker(locPosition, message){
         var map = new kakao.maps.Map(container, options);
+
         var marker = new kakao.maps.Marker({
           map : map,
           position: locPosition
