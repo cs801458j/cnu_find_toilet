@@ -1,6 +1,11 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    <div class="search-area">
+      <p>출발: <input type="text"></p>
+      <p>도착: <input type="text"></p>
+      <button @click="findRoot">길찾기</button>
+    </div>
   </div>
 </template>
 
@@ -33,4 +38,3 @@ a {
   color: #42b983;
 }
 </style>
-
