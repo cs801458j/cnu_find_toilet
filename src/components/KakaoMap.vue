@@ -20,35 +20,43 @@
 
     <div id="kakaoMap">
       <div>
-        
       <div class="searchbox">
         <div id="temp">
            <input id="searchBoxInput" type="text" value="">
-           <button id="enter" v-on:click="searchPlace()"> 검색 </button>
+           <button id="enter" @click="searchPlace()"> 검색 </button>
         </div>
-        <div class="results">
+        <div class="results" v-if="searchBoxDisplay">
              <div class="place" v-for="rs in search.results" :key="rs.id" @click="showPlace(rs)">
              <h4>{{rs.place_name }}</h4>
         <div class="addr"> {{ rs.road_address_name }}</div>
-        </div>
       </div>
-      
+      </div>
     </div>
     <input type="checkbox" id="toggle" hidden v-on:click="ShowButton"> 
           <label for="toggle" class="toggleSwitch">
             <span class="toggleButton"></span>
           </label>
+
     <div class ="setCenter">
       <button @click="gps()"><img src="./layout/Gps.png"></button>
     </div>
+
+    <div class="ratingButton">
+      <button @click="handle_toggle()" type="button" v-if="!isNear"><img src="./layout/star2.svg"></button>
+      <button @click="handle_toggle()" type="button" v-if="isNear"><img src="./layout/star.svg"></button>
     </div>
 
-    
-
-    
-    
-</div>
-
+    </div>
+  </div>
+    <Teleport to="body">
+      <modal :show="showModal" @close="showModal = false, status_change()" >
+        <template #header>
+          <h3>이용하신 화장실은 어떠셨나요?</h3>
+          <Rating :grade="3" :maxStars="5" :hasCounter="true" :targetLat="this.targetPosition.getLat()" 
+          :targetLng="this.targetPosition.getLng()" :targetNM="this.targetNumber"/>
+        </template>
+      </modal>
+    </Teleport>
 </template>
 
 <style scoped>
@@ -59,7 +67,6 @@
   margin: 0;
   border:0;
   position: relative;
-  
 }
 #temp{
   display:flex;
@@ -150,7 +157,7 @@
   }
   .searchbox{
     position:absolute;top:50;right: 200;left:300;bottom:10;width:210px;margin:10px 100px 30px 10px;padding:5px;background:rgba(255, 255, 255, 0.7);overflow-y:auto;z-index: 10;font-size:10px;border-radius: 1px;}
-.bg_white {background:white;}
+  .bg_white {background:white;}
     .results{
       flex: 1 1 auto;
       overflow-y: 50;
@@ -170,7 +177,20 @@
     float:right;
     display: flex;
     object-fit: none;
-    
+  
+    right: 50px;
+    border-radius:50%;
+    top:400px;
+    position: relative;
+    z-index: 10000;
+    overflow-y: auto;
+  }
+
+  .ratingButton{
+    padding:0;
+    float:right;
+    display: flex;
+    object-fit: none;
   
     right: 50px;
     border-radius:50%;
@@ -182,18 +202,25 @@
 </style>
 
 <script>
-import axios from 'axios';
-import toilet from '../assets/toiletyouseong.json'
 import {db}from '../plugin/firebase.js'
-import {collection,addDoc//,getDocs, QueryDocumentSnapshot,query,DocumentData
-} from 'firebase/firestore'
 //import {ref} from 'vue'
+import Modal from './module/modal.vue'
+import Rating from './module/ratingStar.vue'
 
+import toiletyouseong from '../assets/toiletyouseong.json'
+import toiletseogu from '../assets/toiletaddress.json'
+
+import {collection,addDoc,getDocs//, QueryDocumentSnapshot,query,DocumentData
+} from 'firebase/firestore'
 export default  {
+  components:{
+    Modal,
+    Rating,
+
+  },
   data() {
     return {
       markers:[],
-      datas:toilet,
       map: null,
       mapOption:{
         center:{
@@ -213,8 +240,15 @@ export default  {
       posts: [],
       numOfRows: '',
       pageNo: '',
-      marker_count:0
-
+      marker_count:0,
+      isShow: false,
+      isNear: false,
+      showModal: false,
+      targetPosition: null,
+      targetNumber: null,
+      newID: null,
+      gpsMarker: null,
+      searchBoxDisplay: false,
     };
   },
   
@@ -233,21 +267,37 @@ export default  {
                 review:1
               })
     },
-    async getData(){
-      //const items=ref<QueryDocumentSnapshot<DocumentData>[]>([])
-      /* 데이터 갖고오기... 아직 구현중 
-      const items = ref<QueryDocumentSnapshot<DocumentData>[]([])
-      const q = query(collection(db, "toiletDajeon"))
-      const querySnapshot =await getDocs(q);
-      items.value=querySnapshot.docs*/
-      /*
-        db.collection('toiletDajeon')
-            db.collection('toiletYouseong')
-            const querySnapshot = await getDocs(collection(db, "cities"));
-            querySnapshot.forEach((doc) => {
-             // doc.data() is never undefined for query doc snapshots
-            console.log(doc.id, " => ", doc.data());
-              });*/
+async getData(){
+  /*
+      const querySnapshot =  await getDocs(collection(db, "toiletYouseong"));
+      querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      console.log(doc.id, " => ", doc.data().address);
+      this.addressTogeo(doc.data().address, this.map, doc.data().index);
+      });
+      const querySnapshot2 =  await getDocs(collection(db, "toiletDaejeon"));
+      querySnapshot2.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      console.log(doc.id, " => ", doc.data().address);
+      this.addressTogeo(doc.data().address, this.map, doc.data().index);
+      });
+      const querySnapshot3 =  await getDocs(collection(db, "publicToilet"));
+      querySnapshot3.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      console.log(doc.id, " => ", doc.data().address);
+      this.addressTogeo(doc.data().address, this.map, doc.data().index);
+      });
+*/
+
+      for(var i=0;i<44; i++){
+            //var  data = JSON.stringify(toilet.__collections__.toiletAddress)
+            this.addressTogeo(JSON.stringify(toiletyouseong.__collections__.toiletAddress[i].소재지),this.map)
+                  }
+      for(var j=0;j<447; j++){
+            //var  data = JSON.stringify(toilet.__collections__.toiletAddress)
+            this.addressTogeo(JSON.stringify(toiletseogu.__collections__.toiletAddress[j].address),this.map)
+                      
+          }  
     },
 
     //초기 맵 생성
@@ -262,117 +312,144 @@ export default  {
       this.map = new kakao.maps.Map(container, options);//지도 생성
       this.numOfRows = '200'
       this.pageNo = '1' 
-      this.gps()
-      const BASE_URL = "http://apis.data.go.kr/3660000/PublicToiletListService/getPublicToiletList?serviceKey="+process.env.VUE_APP_TOILET_KEY
-                             + "&numOfRows=" + this.numOfRows + "&pageNo=" + this.pageNo;
-      axios.get(BASE_URL).then((result) => {
-               for(var i=0; i<result.data.resultlist.length; i++){
-                this.addressTogeo((result.data.resultlist[i].locplc_lnm).toString(),this.map)
-              }
-
-            })
-      // 데이터 firebase에 저장하는 방법 !!  
-            /*
-            for(var j=0;j<44; j++){
-              //var  data = JSON.stringify(toilet.__collections__.toiletAddress)
-               this.addressTogeo(JSON.stringify(toilet.__collections__.toiletAddress[j].address))
-              addDoc(collection(db,"toiletYouseong"),{
-                index:j,
-                review:4,
-                address:JSON.stringify(toilet.__collections__.toiletAddress[j].소재지)
-              }) 
-            }*/
-            // 데이터 firebase에서 읽어오기       
-            
+      //this.gps()
+      this.getData()
             
     },
-
     //gps 위치로 이동
     gps() {
       var self = this;
       var map = self.map;
+      if(self.gpsMarker != null){
+        self.gpsMarker.setMap(null);
+      }
       if (navigator.geolocation) {
         //gps 사용 GeoLoaction접속
         navigator.geolocation.getCurrentPosition(function (position) {
           var lat = position.coords.latitude,
             lon = position.coords.longitude;
-          var locPosition = new kakao.maps.LatLng(lat, lon),
-            message = '<div style="padding:5px;">현재 위치</div>';
-          displayMarker(locPosition, message);
+          var locPosition = new kakao.maps.LatLng(lat, lon)
+          displayMarker(locPosition);
         });
       } else {
         //gps 사용불가
         var locPosition = new kakao.maps.LatLng(
             36.36662192460574,
             127.34445497915917
-          ),
-          message = "위치 정보를 불러올 수 없습니다.";
-        displayMarker(locPosition, message);
+          )
+        displayMarker(locPosition);
       }
-      //마커 표시, locPosition:좌표, message:메세지
-      function displayMarker(locPosition, message) {
-        var marker = new kakao.maps.Marker({ map: map, position: locPosition });
-        var iwContent = message,
-          iwRemoveable = true;
-        var infowindow = new kakao.maps.InfoWindow({
-          content: iwContent,
-          removable: iwRemoveable,
-        });
+      //마커 표시, locPosition:좌표
+      function displayMarker(locPosition) {
+        var marker = new kakao.maps.Marker({ map: map, position: locPosition});
         map.setCenter(locPosition);
-        infowindow.open(map, marker);
+        self.gpsMarker = marker;
       }
     },
-    addressTogeo(address, map){
+    addressTogeo(address, map, index){
       var self=this;
       var geocoder = new kakao.maps.services.Geocoder();
       geocoder.addressSearch(address, function(result, status){
         if (status === kakao.maps.services.Status.OK) {
- 
         var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-      
         // 결과값으로 받은 위치를 마커로 표시합니다
-        
-        
-        self.addMarker(coords,map);
-      
-        // 인포윈도우로 장소에 대한 설명을 표시합니다
-
+        self.addMarker(coords,map, index);
         }
       })
     },
-    addMarker(position,map){
+    addMarker(position,map, index){
         var self = this;
         var markers = self.markers;
         var marker = new kakao.maps.Marker({
          // 마커를 표시할 지도
-        last_click_position:0,
-        map:map,
-        position:position, // 마커를 표시할 위치
+          last_click_position:0,
+          map:map,
+          position:position, // 마커를 표시할 위치
          // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다
-        
-        lickable: true
-
-      });
-
-          
+          lickable: true,
+        });
       let iwRemoveable = true,
-
       iwposition=position; 
       var infowindow = new kakao.maps.InfoWindow({
-        last_click_position:iwposition,
-        removable : iwRemoveable
+          last_click_position : iwposition,
+          removable : iwRemoveable
 
       });
       kakao.maps.event.addListener(marker, 'click', function(){
       // 마커 위에 인포윈도우를 표시합니다
-       infowindow.open(map, marker);
+      infowindow.open(map, marker);
+      map.setCenter(position);
+      self.targetPosition = position;
+      self.liveGPS(position.getLat(), position.getLng(), index);       
       }); 
       markers.push(marker);
-    }
-    ,
+    },
+    liveGPS(targetLat, targetLon, toilet_nm) {
+      var self = this;
+      if(self.newID != null){
+        navigator.geolocation.clearWatch(self.newID);
+      }
+      if (navigator.geolocation) {
+        //gps 사용
+        this.newID = navigator.geolocation.watchPosition(function (position) {
+          var lat = position.coords.latitude,
+            lon = position.coords.longitude;
+          var distance = getDistance(
+            lat,
+            lon,
+            targetLat,
+            targetLon
+          );
+          self.targetNumber = toilet_nm;
+          if (distance <= 5000) {
+            //거리가 ''m 이내 일 경우
+            navigator.geolocation.clearWatch(self.newID);
+            self.status_change();
+            return;
+          }
+        });
+      } else {
+        //gps 사용불가
+        alert("현재 위치 확인 불가");
+      }
+      function getDistance(lat1, lng1, lat2, lng2) {
+        //두 좌표간의 거리를 구하는 공식
+        function deg2rad(deg) {
+          return deg * (Math.PI / 180);
+        }
+        var R = 6371;
+        var dLat = deg2rad(lat2 - lat1);
+        var dLon = deg2rad(lng2 - lng1);
+        var a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(deg2rad(lat1)) *
+            Math.cos(deg2rad(lat2)) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        var d = R * c; // d는 km이다
+        return d * 1000;
+      }
+    },
+    handle_toggle() {
+      if (this.isNear) {
+        this.isShow = !this.isShow;
+        this.showModal = !this.showModal;
+      }
+    },
+    status_change() {
+      if(this.isShow){
+        this.isNear = false;
+        this.isShow = false;
+      }
+      else{
+        this.isNear = true;
+      }
+    },
     //키워드 검색
     searchPlace(){
       //const keyword = e.target.value.trim();
+      var self = this;
       const keyword = document.getElementById('searchBoxInput').value;
       if (!keyword.replace(/^\s+|\s+$/g, '')) {
         alert('키워드를 입력해주세요!');
@@ -385,12 +462,10 @@ export default  {
        this.search.results = data;
       });
       
-      const db = this.$db;
-      db.collection('toiletAddress').add({address:'',index:'1',review:'5'})
+      self.searchDisplayChange();
     },
     clear(){
-         
-        var markers=this.markers;
+      var markers=this.markers;
       function setMarkers(map) {
       for (var i = 0; i < markers.length; i++) {
         markers[i].setMap(map);
@@ -413,36 +488,32 @@ export default  {
         this.set();
       }
     },
-
-
     //키워드 검색 결과 클릭시 해당 위치로 화면 이동
     showPlace(place){
       console.log(place);
-      var locPosition = new kakao.maps.LatLng(place.y, place.x),
-      message = '<div style="padding:5px;">검색 위치</div>';
+      var locPosition = new kakao.maps.LatLng(place.y, place.x)
       var self= this;
-      function displayMarker(locPosition, message){
+      if(self.gpsMarker != null){
+        self.gpsMarker.setMap(null);
+      }
+      function displayMarker(locPosition){
         //var map = new kakao.maps.Map(container, options);
         var map = self.map;
         var marker = new kakao.maps.Marker({
           map : map,
           position: locPosition
         });
-        var iwContent = message,
-            iwRemoveable = true;
-        var infowindow = new kakao.maps.InfoWindow({
-            content : iwContent,
-            removable : iwRemoveable
-        });
         map.setCenter(locPosition);
-        infowindow.open(map, marker);
+        self.gpsMarker = marker;
       }
-      displayMarker(locPosition, message);
+      displayMarker(locPosition);
+      self.searchDisplayChange();
+    },
+    searchDisplayChange(){
+      this.searchBoxDisplay = !this.searchBoxDisplay;
     }
   },
   mounted() {
-    
-
     if (!window.kakao || !window.kakao.maps) {
       // script 태그 객체 생성
       const script = document.createElement('script');
@@ -452,10 +523,7 @@ export default  {
       document.cookie = "crossCookie=bar; SameSite=None; Secure";
       script.src = "//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey="+process.env.VUE_APP_KAKAOMAP_KEY;
       script.onload = () => kakao.maps.load(this.initMap);
-      document.head.appendChild(script);
-      
-      
-      
+      document.head.appendChild(script);    
     } else {
       this.initMap();
       
@@ -502,6 +570,5 @@ export default  {
     //     yAnchor: 1.05,
     //   });
   }
-  
 }
 </script>
