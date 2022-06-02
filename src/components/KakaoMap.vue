@@ -5,18 +5,19 @@
           <router-view>
             <div class="gnb">
               <router-link to = '/' v-on:click="showMap"> 지도 </router-link>
-              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
               <router-link to = '/notice' v-on:click="noMap"> 공지 </router-link>
-              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
               <router-link to = '/contact' v-on:click="noMap"> 문의 </router-link>
-              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
               <router-link to = '/review' v-on:click="noMap"> 리뷰 </router-link>
-              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
               <router-link to = '/setting' v-on:click="noMap"> 설정 </router-link>
             </div>
           </router-view>
         </div>
-        </header>
+    </header>
+
 
     <div id="kakaoMap">
       <div>
@@ -37,37 +38,44 @@
             <span class="toggleButton"></span>
           </label>
 
-    <div class ="setCenter">
-      <button @click="gps()"><img src="./layout/Gps.png"></button>
-    </div>
-
-    <div class="ratingButton">
-      <button @click="handle_toggle()" type="button" v-if="!isNear"><img src="./layout/star2.svg"></button>
-      <button @click="handle_toggle()" type="button" v-if="isNear"><img src="./layout/star.svg"></button>
+<div class ="setCenter" width="35px" height="35px">
+      <button @click="gps()"><img src="./layout/Gps.png" style="border:none"></button>
     </div>
 
     </div>
   </div>
+  <div>
     <Teleport to="body">
-      <modal :show="showModal" @close="showModal = false, status_change()" >
+      <modal :show="showInfo" @close="showInfo = false" >
         <template #header>
-          <h3>이용하신 화장실은 어떠셨나요?</h3>
-          <Rating :grade="3" :maxStars="5" :hasCounter="true" :targetLat="this.targetPosition.getLat()" 
-          :targetLng="this.targetPosition.getLng()" :targetNM="this.targetNumber"/>
+          <h3 style="text-align: center;"> {{ this.targetName }} </h3>
+          <div style="padding: 30px; text-align: center;">
+            <button @click="voteGood()" style="display: inline-block; background-color:transparent; border:none; margin: auto;">
+            <img id="up" src="./layout/thumbs-up.png" style="height: 50px; width: 50px">
+            <br> {{this.offLike}} </button>
+            <button @click="voteBad()" style="display: inline-block; background-color:transparent; border:none; margin: auto;">
+            <img id="down" src="./layout/thumbs-down.png" style="height: 50px; width: 50px">
+            <br> {{this.offHate}} </button>
+          </div>
+        </template>
+        <template #body>
+          
         </template>
       </modal>
     </Teleport>
+  </div>
 </template>
 
 <style scoped>
 #kakaoMap {
-  top :0;
+  top: 20px;
   width: auto;
   height: 600px;
   margin: 0;
   border:0;
   position: relative;
 }
+
 #temp{
   display:flex;
   margin:auto;
@@ -75,12 +83,13 @@
 #enter{
   width: 60px;
 }
+
 .toggleSwitch {
-  width: 6rem;
+  width: 4rem;
   margin: 2rem;
-  height: 3rem;
+  height: 2rem;
   float: right;
-  right: 0%;
+  right: -30px;
   display: block;
   position: relative;
   border-radius: 2rem;
@@ -91,11 +100,11 @@
 }
 
 .toggleSwitch .toggleButton {
-  width: 2.6rem;
-  height: 2.6rem;
+  width: 2rem;
+  height: 2rem;
   position: absolute;
   top: 50%;
-  left: .2rem;
+  left: 2rem;
   transform: translateY(-50%);
   border-radius: 50%;
   background: #f03d3d;
@@ -107,7 +116,7 @@
 }
 
 #toggle:checked ~ .toggleSwitch .toggleButton {
-  left: calc(100% - 2.8rem);
+  left: calc(100% - 4rem);
   background: #fff;
 }
 
@@ -115,6 +124,7 @@
   transition: all 0.2s ease-in;
 }
 </style>
+
 
 <style lang = "scss">
   @import url(//fonts.googleapis.com/earlyaccess/hanna.css);
@@ -134,7 +144,7 @@
     font-family: 'Hanna';
     font-size: 130%;
     a:hover{color: aquamarine;}
-    z-index: 10000;
+    z-index: -10000;
   }
   .menu a{
     left: 10px;
@@ -155,6 +165,7 @@
   .gnb a:hover:before{
     width: 100%;
   }
+
   .searchbox{
     position:absolute;top:50;right: 200;left:300;bottom:10;width:210px;margin:10px 100px 30px 10px;padding:5px;background:rgba(255, 255, 255, 0.7);overflow-y:auto;z-index: 10;font-size:10px;border-radius: 1px;}
   .bg_white {background:white;}
@@ -172,20 +183,26 @@
         }
       }
     }
-  .setCenter{
+.setCenter{
     padding:0;
     float:right;
     display: flex;
     object-fit: none;
+    
   
-    right: 50px;
+    right: 0px;
     border-radius:50%;
     top:400px;
-    position: relative;
+    position: absolute;
     z-index: 10000;
     overflow-y: auto;
+   transform: scale(0.85);
+  } 
+  
+   .setCenter img{
+   
+    transform: scale(1.31);
   }
-
   .ratingButton{
     padding:0;
     float:right;
@@ -206,20 +223,26 @@ import {db}from '../plugin/firebase.js'
 //import {ref} from 'vue'
 import Modal from './module/modal.vue'
 import Rating from './module/ratingStar.vue'
-
-import toiletyouseong from '../assets/toiletyouseong.json'
-import toiletseogu from '../assets/toiletaddress.json'
-
+import toiletDongu1 from '../assets/toiletDongu1.json'
+import toiletSeogu1 from '../assets/toiletSeogu1.json'
+import toiletJunggui1 from '../assets/toiletJunggui1.json'
+import toiletUsung from '../assets/toiletUsung1.json'
+import toiletDaeduk1 from '../assets/toiletDaeduk1.json'
+import toiletDongu2 from '../assets/toiletDongu2.json'
+import toiletSeogu2 from '../assets/toiletSeogu2.json'
+import toiletJunggu2 from '../assets/toiletJunggu2.json'
+import toiletUsung2 from '../assets/toiletUsung2.json'
+import toiletDaeduk2 from '../assets/toiletDaeduk2.json'
 import {collection,addDoc,getDocs//, QueryDocumentSnapshot,query,DocumentData
 } from 'firebase/firestore'
 export default  {
   components:{
     Modal,
     Rating,
-
   },
   data() {
     return {
+      ratingStore: [[],[],[]],
       markers:[],
       map: null,
       mapOption:{
@@ -241,14 +264,25 @@ export default  {
       numOfRows: '',
       pageNo: '',
       marker_count:0,
-      isShow: false,
-      isNear: false,
-      showModal: false,
-      targetPosition: null,
-      targetNumber: null,
-      newID: null,
-      gpsMarker: null,
-      searchBoxDisplay: false,
+      isNear: false, //목표 화장실과 가까이 있는지 여부(거리는 아래 함수에서 직접 설정 가능)
+      showModal: false, //별점 모달창을 띄울지 여부 결정, 현재 사용 안함.
+      targetPosition: null, // 목표 지점 position 객체
+      targetNumber: null, //목표 지점
+      newID: null, // watchPosition 객체, clear할때 호출.
+      gpsMarker: null, // 과거 gps 마커가 있는지 확인용. gps가 호출 되었을때 이 변수에 값이 저장되어 있다면 이전 마커를 삭제.
+      searchBoxDisplay: false, //검색창을 표시하는지 여부, 만약 검색 결과가 클릭되었다면 false로 가리고, 검색 버튼을 누르면 true로 보여줌.
+      showInfo: false, // 정보 모달창을 띄울지 여부를 결정, 현재 사용.
+      targetAddr: null, // 목표 지점 문자열 주소.
+      targetLike: 0, // 목표 지점 좋아요 수
+      targetHate: 0, // 목표 지점 싫어요 수
+      targetName: null, // 목표 지점 문자열 이름, 정보 모달창에 띄움.
+      targetCode: 0, // 목표 지점이 분류된 JSON 파일.
+      targetIndex: 0, // 목표 지점이 저장된 index
+      region: [], // JSON 파일을 배열로 저장, 실패.
+      offLike: 0, // offline에서 저장되는 좋아요 수, 새로 고침하면 사라짐.
+      offHate: 0, // offline에서 저장되는 싫어요 수, 새로 고침하면 사라짐.
+      thisLat: 0, // initmap() 할때 저장되는 gps 위치 정보, 화장실 마커를 그리는데 활용(거리 파악, 마커 설정)
+      thisLng: 0, // initmap() 할때 저장되는 gps 위치 정보, 화장실 마커를 그리는데 활용(거리 파악, 마커 설정)
     };
   },
   
@@ -267,39 +301,54 @@ export default  {
                 review:1
               })
     },
-async getData(){
-  /*
-      const querySnapshot =  await getDocs(collection(db, "toiletYouseong"));
-      querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      console.log(doc.id, " => ", doc.data().address);
-      this.addressTogeo(doc.data().address, this.map, doc.data().index);
-      });
-      const querySnapshot2 =  await getDocs(collection(db, "toiletDaejeon"));
-      querySnapshot2.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      console.log(doc.id, " => ", doc.data().address);
-      this.addressTogeo(doc.data().address, this.map, doc.data().index);
-      });
-      const querySnapshot3 =  await getDocs(collection(db, "publicToilet"));
-      querySnapshot3.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      console.log(doc.id, " => ", doc.data().address);
-      this.addressTogeo(doc.data().address, this.map, doc.data().index);
-      });
-*/
-
-      for(var i=0;i<44; i++){
+jsonparse(data,length,local){
+      for(var i=0;i<length; i++){
             //var  data = JSON.stringify(toilet.__collections__.toiletAddress)
-            this.addressTogeo(JSON.stringify(toiletyouseong.__collections__.toiletAddress[i].소재지),this.map)
+            this.addressTogeo(JSON.stringify(data.toiletAddress[i].address).replace('(',''),this.map, i, JSON.stringify(data.toiletAddress[i].like), JSON.stringify(data.toiletAddress[i].hate), JSON.stringify(data.toiletAddress[i].name), local, 0, 0)
                   }
-      for(var j=0;j<447; j++){
-            //var  data = JSON.stringify(toilet.__collections__.toiletAddress)
-            this.addressTogeo(JSON.stringify(toiletseogu.__collections__.toiletAddress[j].address),this.map)
-                      
-          }  
     },
-
+    async getData(){
+      /*
+      for(var i=0;i<55; i++){
+            //var  data = JSON.stringify(toilet.__collections__.toiletAddress)
+            this.addressTogeo(JSON.stringify(toiletDongu1.toiletAddress[i].address).replace('(',''),this.map, i, JSON.stringify(toiletDongu1.toiletAddress[i].like), JSON.stringify(toiletDongu1.toiletAddress[i].hate), JSON.stringify(toiletDongu1.toiletAddress[i].name), 0)
+                  console.log(JSON.stringify(toiletDongu1.toiletAddress[i].address),this.map, i, JSON.stringify(toiletDongu1.toiletAddress[i].like), JSON.stringify(toiletDongu1.toiletAddress[i].hate), JSON.stringify(toiletDongu1.toiletAddress[i].name))
+                  console.log(toiletDongu1.toiletAddress.length)
+                  }
+                  this.jsonparse(toiletSeogu1,toiletSeogu1.toiletAddress.length)*/
+      this.jsonparse(toiletSeogu1,toiletSeogu1.toiletAddress.length, 6)
+      this.jsonparse(toiletDongu1,toiletDongu1.toiletAddress.length, 2)
+      this.jsonparse(toiletJunggui1,toiletJunggui1.toiletAddress.length, 4)
+      this.jsonparse(toiletUsung,toiletUsung.toiletAddress.length, 8)
+      this.jsonparse(toiletDaeduk1,toiletDaeduk1.toiletAddress, 0)
+      this.jsonparse(toiletSeogu2,toiletSeogu2.toiletAddress.length, 7)
+      this.jsonparse(toiletDongu2,toiletDongu2.toiletAddress.length, 3)
+      this.jsonparse(toiletJunggu2,toiletJunggu2.toiletAddress.length, 5)
+      this.jsonparse(toiletUsung2,toiletUsung2.toiletAddress.length, 9)
+      this.jsonparse(toiletDaeduk2,toiletDaeduk2.toiletAddress.length, 1)
+      var region = [];
+      region[0] = toiletDaeduk1;
+      region[1] = toiletDaeduk2;
+      region[2] = toiletDongu1;
+      region[3] = toiletDongu2;
+      region[4] = toiletJunggui1;
+      region[5] = toiletJunggu2;
+      region[6] = toiletSeogu1;
+      region[7] = toiletSeogu2;
+      region[8] = toiletUsung;
+      region[9] = toiletUsung2;
+      /*
+      for(var i=0; i<10; i++){
+        setting(i);
+      }
+      function setting(code){
+        var self = this;
+        for(var i=0; i < region[code].toiletAddress.length ; i++){
+          this.ratingStore[code][0][i] = region[code].toiletAddress.like;
+          self.ratingStore[code][1][i] = region[code].toiletAddress.hate;
+        }
+      }*/
+    },
     //초기 맵 생성
     initMap() {
 
@@ -313,7 +362,8 @@ async getData(){
       this.numOfRows = '200'
       this.pageNo = '1' 
       //this.gps()
-      this.getData()
+      this.getData();
+      this.gps();
             
     },
     //gps 위치로 이동
@@ -327,8 +377,10 @@ async getData(){
         //gps 사용 GeoLoaction접속
         navigator.geolocation.getCurrentPosition(function (position) {
           var lat = position.coords.latitude,
-            lon = position.coords.longitude;
-          var locPosition = new kakao.maps.LatLng(lat, lon)
+              lon = position.coords.longitude;
+          var locPosition = new kakao.maps.LatLng(lat, lon);
+          self.thisLat = lat;
+          self.thisLng = lon;
           displayMarker(locPosition);
         });
       } else {
@@ -346,20 +398,35 @@ async getData(){
         self.gpsMarker = marker;
       }
     },
-    addressTogeo(address, map, index){
+    addressTogeo(address, map, index, like, hate, name, code, offlike, offhate){
       var self=this;
       var geocoder = new kakao.maps.services.Geocoder();
       geocoder.addressSearch(address, function(result, status){
         if (status === kakao.maps.services.Status.OK) {
         var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
         // 결과값으로 받은 위치를 마커로 표시합니다
-        self.addMarker(coords,map, index);
+        self.addMarker(coords, map, index, address, like, hate, name, code, offlike, offhate);
         }
       })
     },
-    addMarker(position,map, index){
+    addMarker(position, map, index, address, targetlike, targethate, name, code, offlike, offhate){
         var self = this;
-        var markers = self.markers;
+
+        var distance = self.getDistance(self.thisLat, self.thisLng, position.getLat(), position.getLng());
+
+        var imageSrc
+        if(targetlike-targethate > 10){
+          imageSrc = 'https://ifh.cc/g/ChK0kg.png';
+        }else if(distance < 300){
+          imageSrc = 'https://ifh.cc/g/dpWbMN.png';
+        } 
+        else{
+          imageSrc = 'https://ifh.cc/g/l6FQG5.png';
+        }// 마커이미지의 주소입니다    
+        var imageSize = new kakao.maps.Size(40, 40), // 마커이미지의 크기입니다
+        imageOption = {offset: new kakao.maps.Point(27, 69)};
+        var markers = self.markers; 
+        var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
         var marker = new kakao.maps.Marker({
          // 마커를 표시할 지도
           last_click_position:0,
@@ -367,9 +434,10 @@ async getData(){
           position:position, // 마커를 표시할 위치
          // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다
           lickable: true,
+          image: markerImage,
         });
       let iwRemoveable = true,
-      iwposition=position; 
+          iwposition=position; 
       var infowindow = new kakao.maps.InfoWindow({
           last_click_position : iwposition,
           removable : iwRemoveable
@@ -378,8 +446,18 @@ async getData(){
       kakao.maps.event.addListener(marker, 'click', function(){
       // 마커 위에 인포윈도우를 표시합니다
       infowindow.open(map, marker);
-      map.setCenter(position);
+      infowindow.close();
+      self.targetLike = targetlike;
+      self.targetHate = targethate;
+      self.targetAddr = address;
+      self.targetName = name;
       self.targetPosition = position;
+      self.targetCode = code;
+      self.targetIndex = index;
+      self.offLike = targetlike;
+      self.offHate = targethate;
+      self.infoModal();
+      map.setCenter(position);
       self.liveGPS(position.getLat(), position.getLng(), index);       
       }); 
       markers.push(marker);
@@ -401,10 +479,10 @@ async getData(){
             targetLon
           );
           self.targetNumber = toilet_nm;
-          if (distance <= 5000) {
+          if (distance <= 300) {
             //거리가 ''m 이내 일 경우
             navigator.geolocation.clearWatch(self.newID);
-            self.status_change();
+            self.isNear = true;
             return;
           }
         });
@@ -431,20 +509,26 @@ async getData(){
         return d * 1000;
       }
     },
-    handle_toggle() {
-      if (this.isNear) {
-        this.isShow = !this.isShow;
-        this.showModal = !this.showModal;
-      }
-    },
-    status_change() {
-      if(this.isShow){
-        this.isNear = false;
-        this.isShow = false;
-      }
-      else{
-        this.isNear = true;
-      }
+    getDistance(lat1, lng1, lat2, lng2) {
+        //두 좌표간의 거리를 구하는 공식
+        function deg2rad(deg) {
+          return deg * (Math.PI / 180);
+        }
+        var R = 6371;
+        var dLat = deg2rad(lat2 - lat1);
+        var dLon = deg2rad(lng2 - lng1);
+        var a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(deg2rad(lat1)) *
+            Math.cos(deg2rad(lat2)) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        var d = R * c; // d는 km이다
+        return d * 1000;
+      },
+    infoModal(){
+      this.showInfo = !this.showInfo;
     },
     //키워드 검색
     searchPlace(){
@@ -511,6 +595,26 @@ async getData(){
     },
     searchDisplayChange(){
       this.searchBoxDisplay = !this.searchBoxDisplay;
+    },
+
+    voteGood(){
+      var self = this;
+      if(self.isNear){
+        //이미지 변경
+        self.isNear = !self.isNear;
+        self.targetLike++;
+        self.offLike++;
+        //self.ratingStore[this.targetCode][0][this.targetIndex]++;
+      }
+    },
+    voteBad(){
+      var self = this;
+      if(self.isNear){
+        self.isNear = !self.isNear;
+        self.targetHate++;
+        self.offHate++;
+        //self.ratingStore[this.targetCode][1][this.targetIndex]++;
+      }
     }
   },
   mounted() {
@@ -528,47 +632,6 @@ async getData(){
       this.initMap();
       
     }
-
-    // let maps = [
-    //     {
-    //       id: 1,
-    //       store: '학생문화관점',
-    //       location: '학생문화관 지하1층 로비',
-    //       time: '학기 중: 월~금 08:30~19:00 | 토 09:00~14:00',
-    //       vacation: '방학 중: 월~금 08:30~18:00 | 토 09:00~14:00',
-    //       tel: '02-3277-3707',
-    //       latlng: new kakao.maps.LatLng(36.36662192460574, 127.34445497915917),
-    //     },
-    //     {
-    //       id: 2,
-    //       store: '학생문화관점',
-    //       location: '학생문화관 지하1층 로비',
-    //       time: '학기 중: 월~금 08:30~19:00 | 토 09:00~14:00',
-    //       vacation: '방학 중: 월~금 08:30~18:00 | 토 09:00~14:00',
-    //       tel: '02-3277-3707',
-    //       latlng: new kakao.maps.LatLng(36.36662192460574, 127.34445497912),
-    //     }
-    //   ]
-
-    //   let imageSrc = require('@/assets/logo.png'), // 마커이미지의 주소입니다
-    //   imageSize = new kakao.maps.Size(24, 35), // 마커이미지의 크기입니다
-    //   imageOption = { offset: new kakao.maps.Point(20, 35) }; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
-      
-    //   let markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
-
-    //   maps.forEach(function(pos) {
-    //     let marker = new kakao.maps.Marker({
-    //       map: kakaoMap, // 마커를 표시할 지도
-    //       position: pos.latlng, // 마커의 위치
-    //       image: markerImage,
-    //     });
-    //   });
-
-    //   var customOverlay = new kakao.maps.CustomOverlay({
-    //     position: pos.latlng,
-    //     xAnchor: 0.5,
-    //     yAnchor: 1.05,
-    //   });
   }
 }
 </script>
