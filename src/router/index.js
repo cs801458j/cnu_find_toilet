@@ -3,6 +3,7 @@ import Contact from '@/menu/MyContact.vue'
 import Notice from '@/menu/MyNotice.vue'
 import Review from '@/menu/MyReview.vue'
 import Setting from '@/menu/MySetting.vue'
+import KakaoMap from '@/map/KakaoMap.vue'
 
 const routes = [
   {
@@ -25,6 +26,11 @@ const routes = [
     name: 'Setting',
     component: Setting
   },
+  {
+    path: '/kakaoMap',
+    name: 'KakaoMap',
+    component : KakaoMap
+  }
 ];
 
 const router = createRouter({

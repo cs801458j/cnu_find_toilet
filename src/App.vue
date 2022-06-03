@@ -1,13 +1,11 @@
 <template>
   <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
   <router-view/>
-  <KakaoMap />
+  <startWindow/>
 </template>
 
 <script>
-
-import KakaoMap from './components/KakaoMap.vue'
-
+import startWindow from './components/startWindow.vue'
 
 /*
 //레이아웃 관련 부분인데 오류가 있어서 주석처리 했습니다.
@@ -29,8 +27,7 @@ new Vue({
 export default {
   name: 'App',
   components: {
-  
-    KakaoMap
+    startWindow,
   },
 }
 </script>
@@ -44,5 +41,6 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+
 </style>
 

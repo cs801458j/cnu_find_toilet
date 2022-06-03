@@ -4,7 +4,7 @@
         <div class="menu">
           <router-view>
             <div class="gnb">
-              <router-link to = '/' v-on:click="showMap"> 지도 </router-link>
+              <router-link to = '/kakaoMap' v-on:click="showMap"> 지도 </router-link>
               <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
               <router-link to = '/notice' v-on:click="noMap"> 공지 </router-link>
               <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>

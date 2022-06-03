@@ -50,12 +50,10 @@ export default {
   display: table;
   transition: opacity 0.3s ease;
 }
-
 .modal-wrapper {
   display: table-cell;
   vertical-align: middle;
 }
-
 .modal-container {
   width: 300px;
   margin: 0px auto;
@@ -65,21 +63,17 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
 }
-
 .modal-header h3 {
   margin-top: 0;
   color: #42b983;
 }
-
 .modal-body {
   margin: 20px 0;
 }
-
 .modal-default-button {
   margin: auto;
   display: block;
 }
-
 /*
  * The following styles are auto-applied to elements with
  * transition="modal" when their visibility is toggled
@@ -88,15 +82,12 @@ export default {
  * You can easily play with the modal transition by editing
  * these styles.
  */
-
 .modal-enter-from {
   opacity: 0;
 }
-
 .modal-leave-to {
   opacity: 0;
 }
-
 .modal-enter-from .modal-container,
 .modal-leave-to .modal-container {
   -webkit-transform: scale(1.1);
