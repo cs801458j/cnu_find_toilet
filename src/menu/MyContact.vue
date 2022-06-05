@@ -185,7 +185,6 @@ input[type=submit]:hover {
     position: relative;
     padding-bottom: 15px;
   }
-  
   .gnb a:before{
     content: '';
     position: absolute;
