@@ -1,5 +1,18 @@
 <template>
     <div class="MyNotice">
+        <header>
+          <div class="menu">
+            <router-view>
+            <div class="gnb">
+              <router-link to = '/kakaoMap'> 지도 </router-link>
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <router-link to = '/notice'> 공지 </router-link>
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <router-link to = '/contact'> 문의 </router-link>
+            </div>
+          </router-view>
+          </div>
+        </header>
         <h1>공지사항</h1>
     </div>
         <input type="checkbox" id="notice01">

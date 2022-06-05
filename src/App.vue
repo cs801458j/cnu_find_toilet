@@ -6,7 +6,7 @@
 
 <script>
 
-import KakaoMap from './components/KakaoMap.vue'
+import KakaoMap from './map/KakaoMap.vue'
 
 
 /*

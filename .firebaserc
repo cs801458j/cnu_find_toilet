@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "cnu-find-toilet"
+    "default": "cnu-find-toilet",
+    "staging": "geubhae"
   }
 }

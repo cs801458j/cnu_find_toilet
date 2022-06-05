@@ -1,5 +1,18 @@
 <template>
     <div class="MyContact">
+        <header>
+          <div class="menu">
+          <router-view>
+            <div class="gnb">
+              <router-link to = '/kakaoMap'> 지도 </router-link>
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <router-link to = '/notice'> 공지 </router-link>
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <router-link to = '/contact'> 문의 </router-link>
+            </div>
+          </router-view>
+          </div>
+        </header>
         <div class="container">
             <h1>문의하기</h1>
             <form action="action_page.php" v-on:submit="showSubmit">
@@ -146,6 +159,44 @@ input[type=submit]:hover {
     font-family: 'Hanna';
     font-size: 100%;
     z-index: 10000;
+  }
+  header{
+    height:75px; 
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+  .menu{
+    background: rgb(255, 98, 124);
+    padding: 30px;
+    margin:0 auto;
+    position: relative;
+    bottom: 0;
+    font-family: 'Hanna';
+    font-size: 130%;
+    a:hover{color: aquamarine;}
+    z-index: -10000;
+  }
+  .menu a{
+    left: 10px;
+    color: rgb(40, 27, 27);
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 15px;
+  }
+  
+  .gnb a:before{
+    content: '';
+    position: absolute;
+    background-color: aquamarine;
+    height: 5px;
+    width: 0;
+    bottom: 0;
+    transition: 0.7s;
+  }
+  .gnb a:hover:before{
+    width: 100%;
   }
   li{
     list-style:none;
