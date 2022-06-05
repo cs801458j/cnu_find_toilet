@@ -1,11 +1,9 @@
 <template>
   <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
   <router-view/>
-  <startWindow/>
 </template>
 
 <script>
-import startWindow from './components/startWindow.vue'
 
 /*
 //레이아웃 관련 부분인데 오류가 있어서 주석처리 했습니다.
@@ -27,7 +25,6 @@ new Vue({
 export default {
   name: 'App',
   components: {
-    startWindow,
   },
 }
 </script>
