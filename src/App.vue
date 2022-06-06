@@ -29,8 +29,6 @@ new Vue({
 export default {
   name: 'App',
   components: {
-  
-    KakaoMap
   },
 }
 </script>

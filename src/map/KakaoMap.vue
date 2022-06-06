@@ -34,8 +34,8 @@
             <span class="toggleButton"></span>
           </label>
 
-<div class ="setCenter" width="35px" height="35px">
-      <button @click="gps()"><img src="./layout/Gps.png" style="border:none"></button>
+    <div class ="setCenter">
+      <button @click="gps()" style="background-color:transparent; border: none; width:60px; height:60px;"><img src="./layout/Gps.png" style="border:none; height: 45px; width: 45px"></button>
     </div>
 
     </div>
@@ -368,6 +368,8 @@ export default  {
             lon = position.coords.longitude;
         var locPosition = new kakao.maps.LatLng(lat, lon);
         self.currentPosition = locPosition;
+        self.thisLat = lat;
+        self.thisLng = lon;
         self.displayMarker(locPosition);
       }
     },
@@ -390,7 +392,7 @@ export default  {
         var imageSrc
         if( self.targetLike - self.targetHate > 10){
           imageSrc = 'https://ifh.cc/g/ChK0kg.png';
-        }else if(distance < 500){
+        }else if(distance < 1000){
           imageSrc = 'https://ifh.cc/g/y14s6O.png';
         }
         else{
@@ -428,7 +430,7 @@ export default  {
       var self = this;
       var distance = self.getDistance(self.currentPosition.getLat(),self.currentPosition.getLng(),targetLat,targetLon);
       self.targetNumber = toilet_nm;
-      if (distance <= 100 ){
+      if (distance <= 1000){
           self.isNear = true;
           return;
         };
@@ -587,19 +589,34 @@ export default  {
     }
     },
   mounted() {
+    /*
     if (!window.kakao || !window.kakao.maps) {
       // script 태그 객체 생성
       const script = document.createElement('script');
       /* global */
+      /*
       document.cookie = "safeCookie1=foo; SameSite=Lax"; 
-      document.cookie = "safeCookie2=foo";  
+      document.cookie = "safeCookie2=foo";
       document.cookie = "crossCookie=bar; SameSite=None; Secure";
       script.src = "//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey="+process.env.VUE_APP_KAKAOMAP_KEY;
       script.onload = () => kakao.maps.load(this.initMap);
       document.head.appendChild(script);    
     } else {
-      this.initMap();
-      
+      this.initMap();      
+    }
+    */
+   if (window.kakao && window.kakao.maps) {
+      setTimeout(() => { this.initMap() }, 100)
+    } else {
+      const script = document.createElement('script')
+      /* global kakao */
+      document.cookie = "safeCookie1=foo; SameSite=Lax"; 
+      document.cookie = "safeCookie2=foo";  
+      document.cookie = "crossCookie=bar; SameSite=None; Secure";
+      script.src = "//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey="+process.env.VUE_APP_KAKAOMAP_KEY;
+      script.onload = () => kakao.maps.load(this.initMap)
+
+      document.head.appendChild(script)
     }
   }
 }
